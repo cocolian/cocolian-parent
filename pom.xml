@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.cocolian</groupId>
 	<artifactId>cocolian-parent</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>pom</packaging>
 	<name>Cocolian Parent Pom</name>
 	<url>https://github.com/cocolian/cocolian-parent</url>
@@ -21,6 +21,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
+		<gpg.executable>gpg2</gpg.executable>
+		<gpg.passphrase>pass</gpg.passphrase>		
 		<!-- 主要依赖库的版本定义 -->
 		<validation.version>1.0.0.GA</validation.version>
 		<spring.version>4.3.10.RELEASE</spring.version>
@@ -255,7 +257,7 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<pluginManagement>
+	  <pluginManagement>
 			<plugins>
 				<!-- war打包插件, 设定war包名称不带版本号 -->
 				<plugin>
@@ -305,25 +307,35 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.0</version>
-				<configuration>
-					<attach>true</attach>
-				</configuration>
+				<version>3.0.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
-						<phase>deploy</phase>
 						<goals>
-							<goal>jar</goal>
+							 <goal>jar</goal>
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin>	    
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.3</version>
-			</plugin>
+				<version>3.0.0</version>			
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<doclint>none</doclint>
+							<charset>${project.build.sourceEncoding}</charset>
+							<encoding>${project.build.sourceEncoding}</encoding>	
+							<failOnError>false</failOnError>
+						</configuration>						
+					</execution>
+				</executions>
+			</plugin>			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -334,7 +346,6 @@
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>2.6</version>
@@ -405,7 +416,35 @@
 			</plugin>
 		</plugins>
 	</build>
-
+	<profiles>
+		<profile>
+			<id>oss</id>
+			<activation>
+				<property>
+					<name>performRelease</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	<reporting>
 		<plugins>
 			<plugin>
@@ -415,13 +454,12 @@
 			</plugin>
 		</plugins>
 	</reporting>
-
 	<developers>
 		<developer>
 			<id>shamphone</id>
 			<name>凤凰牌老熊</name>
-			<email>shamphone at gmail.com</email>
-			<organization>Phoenix Software, Inc.</organization>
+			<email>shamphone@gmail.com</email>
+			<organization>Cocolian Software, Inc.</organization>
 			<organizationUrl>http://www.cocolian.com</organizationUrl>
 			<roles>
 				<role>Project Leader</role>
@@ -435,5 +473,14 @@
 		<developerConnection>scm:git:ssh://git@github.com:cocolian/cocolian-prent.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
-
+	<distributionManagement>
+		<snapshotRepository>
+			<id>oss</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+		</snapshotRepository>
+		<repository>
+			<id>oss</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
 </project>
