@@ -62,6 +62,16 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+           </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
                 <version>${spring.version}</version>
@@ -128,8 +138,6 @@
                 <artifactId>commons-codec</artifactId>
                 <version>${commons-codec.version}</version>
             </dependency>
-
-
             <dependency>
                 <groupId>com.googlecode.log4jdbc</groupId>
                 <artifactId>log4jdbc</artifactId>
@@ -382,14 +390,14 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- enforcer插件, 避免被依赖的依赖引入过期的jar -->
+            <!-- enforcer插件, 检查规则 1: maven 版本号 2: jdk版本 3: 间接依赖版本号强制一致 eg: ch.qos.logback:logback-classic:1.2.3 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>1.4.1</version>
                 <executions>
                     <execution>
-                        <id>enforce-banned-dependencies</id>
+                        <id>default-cli</id>
                         <goals>
                             <goal>enforce</goal>
                         </goals>
@@ -401,6 +409,7 @@
                                 <requireJavaVersion>
                                     <version>${java.version}</version>
                                 </requireJavaVersion>
+                                <dependencyConvergence/>
                             </rules>
                             <fail>true</fail>
                         </configuration>
