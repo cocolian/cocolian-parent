@@ -57,6 +57,9 @@
         <resteasy.version>3.0.16.Final</resteasy.version>
         <activemq.version>5.13.4</activemq.version>
         <cobertura.version>2.7</cobertura.version>
+        <proto.version>3.3.1</proto.version>	
+        <curator.version>2.12.0</curator.version>	    
+        <thrift.version>0.10.0</thrift.version>	        
     </properties>
     <!-- 依赖项定义 -->
     <dependencyManagement>
@@ -154,6 +157,56 @@
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
             </dependency>
+			<dependency>
+				<groupId>com.google.protobuf</groupId>
+				<artifactId>protobuf-java</artifactId>
+				<version>${proto.version}</version>
+			</dependency>	        
+							<dependency>
+			<groupId>org.apache.thrift</groupId>
+			<artifactId>libthrift</artifactId>
+			<version>${thrift.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-jaxb-annotations</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+			<dependency>
+				<groupId>org.apache.curator</groupId>
+				<artifactId>curator-framework</artifactId>
+				<version>${curator.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.curator</groupId>
+				<artifactId>curator-recipes</artifactId>
+				<version>${curator.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.curator</groupId>
+				<artifactId>curator-client</artifactId>
+				<version>${curator.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.curator</groupId>
+				<artifactId>curator-x-discovery</artifactId>
+				<version>${curator.version}</version>
+			</dependency>			    
             <!-- spring boot start -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -206,8 +259,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${spring-boot.version}</version>
-                <scope>test</scope>
-    
+                <scope>test</scope>    
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
