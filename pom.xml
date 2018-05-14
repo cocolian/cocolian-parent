@@ -442,6 +442,25 @@
                     </execution>
                 </executions>
             </plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>src/main/gen</source>
+								<source>src/test/gen</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>            
             <!-- enforcer插件, 检查规则 1: maven 版本号 2: jdk版本 3: 间接依赖版本号强制一致 eg: ch.qos.logback:logback-classic:1.2.3 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -476,6 +495,7 @@
         </plugins>
     </build>
     <profiles>
+		<!-- 用来支持将jar文件发布到maven repository上的插件。 仅激活才能够运行 -->
         <profile>
             <id>oss</id>
             <build>
@@ -497,6 +517,109 @@
                 </plugins>
             </build>
         </profile>
+		<!-- 使用protobuf或者thrift来编译对应的文件生成Java代码。 编译出来的代码放在src/main/gen目录或者src/test/gen目录 -->		
+       <profile>
+            <id>compile</id>
+            <properties>
+		        <proto.path>protoc</proto.path>
+				<thrift.path>thrift</thrift.path>		        
+		        <idl.folder>${basedir}/src/main/resources</idl.folder>
+				<test.idl.folder>${basedir}/src/test/resources</test.idl.folder>				
+		    </properties>            
+            <build>
+                <plugins>
+   					<!-- 使用protobuf 和thrift来编译文件生成java代码。 生成的代码在src/main/gen目录下 -->
+		  			<plugin>
+				        <groupId>org.apache.maven.plugins</groupId>
+				        <artifactId>maven-antrun-plugin</artifactId>
+
+				        <executions>
+				          <execution>
+				            <id>generate-proto-sources</id>
+				            <goals>
+				              <goal>run</goal>
+				            </goals>
+				            <phase>generate-sources</phase>
+				            <configuration>
+				              <target>
+							   <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+							   <fileset id="protofiles" dir="${idl.folder}" includes="**/*.proto" excludes="google/protobuf/descriptor.proto"/>							   
+								<if>
+									<equals arg1="${toString:protofiles}" arg2="" /> 
+									<then>
+										<echo>No protobuf files found in folder ${basedir}</echo>
+									</then>
+									<else>
+										<echo>Compiling protobuf files in folder ${basedir}. </echo>
+										<echo>Delete folder : ${basedir}/src/main/gen</echo>
+										<delete dir="${basedir}/src/main/gen" quiet="true" />
+										<echo>Create folder : ${basedir}/src/main/gen</echo>
+										<mkdir dir="${basedir}/src/main/gen" />
+										<!-- Compile proto files in all locations -->
+										<echo>Compiling **/*.proto files...</echo>
+										<apply executable="${proto.path}">
+										  <arg value="--proto_path=${idl.folder}" />
+										  <arg value="--java_out=${basedir}/src/main/gen" />
+										  <fileset refid="protofiles"/>
+										</apply>
+									</else>
+								</if>					   							  
+				              </target>
+				            </configuration>
+				          </execution>				  
+						<execution>
+							<id>generate-thrift-sources</id>
+							<goals>
+								<goal>run</goal>
+							</goals>
+							<phase>generate-sources</phase>
+							<configuration>
+								<target>
+									<echo>Delete folder : ${basedir}/src/main/gen</echo>
+									<delete dir="${basedir}/src/main/gen" quiet="true" />
+									<echo>Create folder : ${basedir}/src/main/gen</echo>
+									<mkdir dir="${basedir}/src/main/gen" />
+									<!-- Compile thrift files in all locations -->
+									<echo>Compiling **/*.thrift files...</echo>
+									<apply executable="${thrift.path}">
+										<arg value="--gen" />
+										<arg value="java" />
+										<arg value="-out" />
+										<arg value="${basedir}/src/main/gen" />
+										<fileset dir="${idl.folder}" includes="**/*.thrift" />
+									</apply>
+								</target>
+							</configuration>
+						</execution>
+					</executions>
+						<dependencies>
+							<dependency>
+								<groupId>ant-contrib</groupId>
+								<artifactId>ant-contrib</artifactId>
+								<version>1.0b3</version>
+								<exclusions>
+									<exclusion>
+										<groupId>org.apache.ant</groupId>
+										<artifactId>ant</artifactId>
+									</exclusion>
+									</exclusions>						
+	
+							</dependency>
+							<dependency>
+								<groupId>org.apache.ant</groupId>
+								<artifactId>ant</artifactId>
+								<version>1.9.2</version>
+							</dependency>
+							<dependency>
+								<groupId>org.apache.ant</groupId>
+								<artifactId>ant-jsch</artifactId>
+								<version>1.9.2</version>
+							</dependency>	
+						</dependencies>
+				</plugin>      				
+               </plugins>
+            </build>
+        </profile>        
     </profiles>
     <reporting>
         <plugins>
